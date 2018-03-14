@@ -26,14 +26,17 @@ func NewSubscribePacket() *SubscribePacket {
 	return _subscribePacketPool.Get().(*SubscribePacket)
 }
 
+//SetFixedHeader will set fh for our header
 func (s *SubscribePacket) SetFixedHeader(fh *FixedHeader) {
 	s.FixedHeader = fh
 }
 
+//Type return the packet type
 func (s *SubscribePacket) Type() byte {
 	return s.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (s *SubscribePacket) Reset() {
 	s.FixedHeader.Dup = false
 	s.FixedHeader.QoS = byte(0)
@@ -44,6 +47,7 @@ func (s *SubscribePacket) Reset() {
 	s.QoSs = []byte{}
 }
 
+//Close reset the packet field put the control packet back to pool
 func (s *SubscribePacket) Close() {
 	s.Reset()
 	_subscribePacketPool.Put(s)

@@ -25,6 +25,7 @@ func NewConnackPacket() *ConnackPacket {
 	return _connackPacketPool.Get().(*ConnackPacket)
 }
 
+//Reset will initialize the fields in control packet
 func (ca *ConnackPacket) Reset() {
 	ca.FixedHeader.Dup = false
 	ca.FixedHeader.QoS = byte(0)
@@ -35,15 +36,18 @@ func (ca *ConnackPacket) Reset() {
 	ca.ReturnCode = byte(0)
 }
 
+//Close reset the packet field put the control packet back to pool
 func (ca *ConnackPacket) Close() {
 	ca.Reset()
 	_connackPacketPool.Put(ca)
 }
 
+//SetFixedHeader will set fh for our header
 func (ca *ConnackPacket) SetFixedHeader(fh *FixedHeader) {
 	ca.FixedHeader = fh
 }
 
+//Type return the packet type
 func (ca *ConnackPacket) Type() byte {
 	return ca.FixedHeader.MessageType
 }

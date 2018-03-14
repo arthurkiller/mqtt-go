@@ -24,10 +24,12 @@ func NewUnsubackPacket() *UnsubackPacket {
 	return _unsubackPacketPool.Get().(*UnsubackPacket)
 }
 
+//Type return the packet type
 func (ua *UnsubackPacket) Type() byte {
 	return ua.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (ua *UnsubackPacket) Reset() {
 	ua.FixedHeader.Dup = false
 	ua.FixedHeader.QoS = byte(0)
@@ -36,10 +38,12 @@ func (ua *UnsubackPacket) Reset() {
 	ua.MessageID = 0
 }
 
+//SetFixedHeader will set fh for our header
 func (ua *UnsubackPacket) SetFixedHeader(fh *FixedHeader) {
 	ua.FixedHeader = fh
 }
 
+//Close reset the packet field put the control packet back to pool
 func (ua *UnsubackPacket) Close() {
 	ua.Reset()
 	_unsubackPacketPool.Put(ua)

@@ -8,13 +8,13 @@ import (
 )
 
 const (
+	// LeakyBufSize give out the byte slice size
 	// according to mqtt 3.1, remain leanth should be lower than 256M
 	// mostly MQTT packet should always lower than 500B
 	// 1k*10k: in this condition, leakybuf will capture 10m RAM or less
-	// TODO if this threshould should be tested?
 	LeakyBufSize = 1024
-	// connd can handle 10k packets(bufferd, without memouy allocation) at the same time
-	MaxNBuf = 10240
+	// MaxNBuf give out leaky buffer size
+	MaxNBuf = 1024
 )
 
 var _leakyBuf = NewLeakyBuf(MaxNBuf, LeakyBufSize)
@@ -26,19 +26,19 @@ var ErrInternal = errors.New("Internal error occured")
 //decoded MQTT packets, either from being read or before being
 //written
 type ControlPacket interface {
-	// SetFixedHeader will set fh for our header
+	//SetFixedHeader will set fh for our header
 	SetFixedHeader(*FixedHeader)
-	// Type return the packet type
+	//Type return the packet type
 	Type() byte
-	// Write the packet into Writer
+	//Write the packet into Writer
 	Write(io.Writer) error
-	// Unpack the given byte and fill in the control packet object fields
+	//Unpack the given byte and fill in the control packet object fields
 	Unpack([]byte) error
-	// Reset will initialize the fields in control packet
+	//Reset will initialize the fields in control packet
 	Reset()
-	// Close reset the packet field put the control packet back to pool
+	//Close reset the packet field put the control packet back to pool
 	Close()
-	// Details return packet QoS and MessageID
+	//Details return packet QoS and MessageID
 	Details() Details
 	String() string
 }
@@ -107,8 +107,7 @@ var ConnackReturnCodes = map[uint8]string{
 	255: "Connection Refused: Protocol Violation",
 }
 
-//Below are the const definitions for error codes returned by
-//Connect()
+//Failure defined error codes returned by Connect()
 const Failure = 0x80
 
 //SubackReturnCodes is a map of the error codes constants for Subscribe()
@@ -208,10 +207,6 @@ func ReadPacketLimitSize(r io.Reader, maxSize int) (cp ControlPacket, err error)
 func NewControlPacket(packetType byte) (cp ControlPacket) {
 	switch packetType {
 	case Connect:
-		// TODO FIXME which is better? I'd like 2
-		// 1. NewConnectPacket(NewFixedHeader(Connect), id)
-		// 2. NewConnectPacket(&FixedHeader{MessageType: Connect}, id)
-		// 3. NewConnectPacket(Connect, id)
 		cp = NewConnectPacket()
 	case Connack:
 		cp = NewConnackPacket()
@@ -317,7 +312,6 @@ type Details struct {
 // | remain length1|    |
 // | remain length2|    |
 // | remain length3|-----
-
 type FixedHeader struct {
 	MessageType     byte
 	Dup             bool

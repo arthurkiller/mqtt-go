@@ -24,10 +24,12 @@ func NewPubackPacket() *PubackPacket {
 	return _pubackPacketPool.Get().(*PubackPacket)
 }
 
+//Type return the packet type
 func (pa *PubackPacket) Type() byte {
 	return pa.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (pa *PubackPacket) Reset() {
 	pa.FixedHeader.Dup = false
 	pa.FixedHeader.QoS = byte(0)
@@ -36,10 +38,12 @@ func (pa *PubackPacket) Reset() {
 	pa.MessageID = 0
 }
 
+//SetFixedHeader will set fh for our header
 func (pa *PubackPacket) SetFixedHeader(fh *FixedHeader) {
 	pa.FixedHeader = fh
 }
 
+//Close reset the packet field put the control packet back to pool
 func (pa *PubackPacket) Close() {
 	pa.Reset()
 	_pubackPacketPool.Put(pa)

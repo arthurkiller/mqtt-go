@@ -25,14 +25,17 @@ func NewUnsubscribePacket() *UnsubscribePacket {
 	return _unsubscribePacketPool.Get().(*UnsubscribePacket)
 }
 
+//SetFixedHeader will set fh for our header
 func (u *UnsubscribePacket) SetFixedHeader(fh *FixedHeader) {
 	u.FixedHeader = fh
 }
 
+//Type return the packet type
 func (u *UnsubscribePacket) Type() byte {
 	return u.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (u *UnsubscribePacket) Reset() {
 	u.FixedHeader.Dup = false
 	u.FixedHeader.QoS = byte(0)
@@ -42,6 +45,7 @@ func (u *UnsubscribePacket) Reset() {
 	u.Topics = []string{}
 }
 
+//Close reset the packet field put the control packet back to pool
 func (u *UnsubscribePacket) Close() {
 	u.Reset()
 	_unsubscribePacketPool.Put(u)

@@ -25,14 +25,17 @@ func NewSubackPacket() *SubackPacket {
 	return _subackPacketPool.Get().(*SubackPacket)
 }
 
+//SetFixedHeader will set fh for our header
 func (sa *SubackPacket) SetFixedHeader(fh *FixedHeader) {
 	sa.FixedHeader = fh
 }
 
+//Type return the packet type
 func (sa *SubackPacket) Type() byte {
 	return sa.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (sa *SubackPacket) Reset() {
 	sa.FixedHeader.Dup = false
 	sa.FixedHeader.QoS = byte(0)
@@ -42,6 +45,7 @@ func (sa *SubackPacket) Reset() {
 	sa.ReturnCodes = []byte{}
 }
 
+//Close reset the packet field put the control packet back to pool
 func (sa *SubackPacket) Close() {
 	sa.Reset()
 	_subackPacketPool.Put(sa)

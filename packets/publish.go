@@ -26,14 +26,17 @@ func NewPublishPacket() *PublishPacket {
 	return _publishPacketPool.Get().(*PublishPacket)
 }
 
+//SetFixedHeader will set fh for our header
 func (p *PublishPacket) SetFixedHeader(fh *FixedHeader) {
 	p.FixedHeader = fh
 }
 
+//Type return the packet type
 func (p *PublishPacket) Type() byte {
 	return p.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (p *PublishPacket) Reset() {
 	p.FixedHeader.Dup = false
 	p.FixedHeader.QoS = byte(0)
@@ -44,6 +47,7 @@ func (p *PublishPacket) Reset() {
 	p.Payload = []byte{}
 }
 
+//Close reset the packet field put the control packet back to pool
 func (p *PublishPacket) Close() {
 	p.Reset()
 	_publishPacketPool.Put(p)

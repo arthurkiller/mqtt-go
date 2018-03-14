@@ -23,6 +23,7 @@ func NewDisconnectPacket() *DisconnectPacket {
 	return _disconnectPacketPool.Get().(*DisconnectPacket)
 }
 
+//Reset will initialize the fields in control packet
 func (d *DisconnectPacket) Reset() {
 	d.FixedHeader.Dup = false
 	d.FixedHeader.QoS = byte(0)
@@ -30,15 +31,18 @@ func (d *DisconnectPacket) Reset() {
 	d.FixedHeader.Retain = false
 }
 
+//Close reset the packet field put the control packet back to pool
 func (d *DisconnectPacket) Close() {
 	d.Reset()
 	_disconnectPacketPool.Put(d)
 }
 
+//SetFixedHeader will set fh for our header
 func (d *DisconnectPacket) SetFixedHeader(fh *FixedHeader) {
 	d.FixedHeader = fh
 }
 
+//Type return the packet type
 func (d *DisconnectPacket) Type() byte {
 	return d.FixedHeader.MessageType
 }

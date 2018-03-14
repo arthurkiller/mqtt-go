@@ -24,14 +24,17 @@ func NewPubrelPacket() *PubrelPacket {
 	return _pubrelPacketPool.Get().(*PubrelPacket)
 }
 
+//SetFixedHeader will set fh for our header
 func (pr *PubrelPacket) SetFixedHeader(fh *FixedHeader) {
 	pr.FixedHeader = fh
 }
 
+//Type return the packet type
 func (pr *PubrelPacket) Type() byte {
 	return pr.FixedHeader.MessageType
 }
 
+//Reset will initialize the fields in control packet
 func (pr *PubrelPacket) Reset() {
 	pr.FixedHeader.Dup = false
 	pr.FixedHeader.QoS = byte(0)
@@ -40,6 +43,7 @@ func (pr *PubrelPacket) Reset() {
 	pr.MessageID = 0
 }
 
+//Close reset the packet field put the control packet back to pool
 func (pr *PubrelPacket) Close() {
 	pr.Reset()
 	_pubrelPacketPool.Put(pr)

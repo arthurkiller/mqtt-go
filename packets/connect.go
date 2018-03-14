@@ -43,6 +43,7 @@ func NewConnectPacket() *ConnectPacket {
 	return _connectPacketPool.Get().(*ConnectPacket)
 }
 
+//Reset will initialize the fields in control packet
 func (c *ConnectPacket) Reset() {
 	c.FixedHeader.Dup = false
 	c.FixedHeader.QoS = byte(0)
@@ -67,15 +68,18 @@ func (c *ConnectPacket) Reset() {
 	c.Password = []byte{}
 }
 
+//Close reset the packet field put the control packet back to pool
 func (c *ConnectPacket) Close() {
 	c.Reset()
 	_connectPacketPool.Put(c)
 }
 
+//SetFixedHeader will set fh for our header
 func (c *ConnectPacket) SetFixedHeader(fh *FixedHeader) {
 	c.FixedHeader = fh
 }
 
+//Type return the packet type
 func (c *ConnectPacket) Type() byte {
 	return c.FixedHeader.MessageType
 }

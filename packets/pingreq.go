@@ -23,6 +23,7 @@ func NewPingreqPacket() *PingreqPacket {
 	return _pingreqPacketPool.Get().(*PingreqPacket)
 }
 
+//Reset will initialize the fields in control packet
 func (pr *PingreqPacket) Reset() {
 	pr.FixedHeader.Dup = false
 	pr.FixedHeader.QoS = byte(0)
@@ -30,15 +31,18 @@ func (pr *PingreqPacket) Reset() {
 	pr.FixedHeader.Retain = false
 }
 
+//Close reset the packet field put the control packet back to pool
 func (pr *PingreqPacket) Close() {
 	pr.Reset()
 	_pingreqPacketPool.Put(pr)
 }
 
+//SetFixedHeader will set fh for our header
 func (pr *PingreqPacket) SetFixedHeader(fh *FixedHeader) {
 	pr.FixedHeader = fh
 }
 
+//Type return the packet type
 func (pr *PingreqPacket) Type() byte {
 	return pr.FixedHeader.MessageType
 }
