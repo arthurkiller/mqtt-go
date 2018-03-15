@@ -14,16 +14,11 @@ env:
         - GO15VENDOREXPERIMENT=1
     matrix:
         - TARGET=amd64
+        - TARGET=arm64
+        - TARGET=arm
         - TARGET=386
         - TARGET=x86
         - TARGET=x64
 
     matrix:
         fast_finish: true
-        allow_failures:
-            - go: tip
-              exclude:
-                  - go: tip
-                    env: TARGET=arm
-                  - go: tip
-                    env: TARGET=arm64
