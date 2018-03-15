@@ -12,7 +12,7 @@ const (
 	// according to mqtt 3.1, remain leanth should be lower than 256M
 	// mostly MQTT packet should always lower than 500B
 	// 1k*10k: in this condition, leakybuf will capture 10m RAM or less
-	LeakyBufSize = 1024
+	LeakyBufSize = 102400
 	// MaxNBuf give out leaky buffer size
 	MaxNBuf = 1024
 )
@@ -148,6 +148,8 @@ func ReadPacket(r io.Reader) (cp ControlPacket, err error) {
 	}
 
 	offset := fh.unpack(r, b)
+	// FIXME cause we are on a buffer pool, the
+
 	n, err = io.ReadFull(r, b[offset:offset+fh.RemainingLength])
 	if err != nil {
 		return nil, err
