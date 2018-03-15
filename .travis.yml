@@ -22,3 +22,7 @@ env:
 
     matrix:
         fast_finish: true
+
+after_success:
+    - make cover
+    - bash <(curl -s https://codecov.io/bash)
