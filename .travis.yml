@@ -23,6 +23,11 @@ env:
     matrix:
         fast_finish: true
 
+before_install:
+    - go get -t -v ./...
+
+script:
+    - go test -race -coverprofile=coverage.txt -covermode=atomic
+
 after_success:
-    - make cover
     - bash <(curl -s https://codecov.io/bash)
