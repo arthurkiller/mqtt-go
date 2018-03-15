@@ -20,7 +20,7 @@ const (
 var _leakyBuf = NewLeakyBuf(MaxNBuf, LeakyBufSize)
 
 // ErrInternal will occored on internal error, which should not happen.
-var ErrInternal = errors.New("Internal error occured")
+var ErrInternal = errors.New("Internal error occurred")
 
 //ControlPacket defines the interface for structs intended to hold
 //decoded MQTT packets, either from being read or before being
@@ -296,7 +296,7 @@ type Details struct {
 // | MessageType | Dup |   QoS   |Retain|
 // | byte        | bool|  byte   | bool |
 //
-//FixedHeader only contains 5 bytes at most. And it can align to memory boundry
+//FixedHeader only contains 5 bytes at most. And it can align to memory boundary
 //based on 64bit system and hardware
 // | MsgType | dup | qos | retain |
 // |        remain length         |
