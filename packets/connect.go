@@ -161,8 +161,7 @@ func (c *ConnectPacket) Unpack(b []byte) error {
 		n += m
 	}
 	if c.PasswordFlag {
-		c.Password, m = decodeBytes(b[n:])
-		//n += m
+		c.Password, _ = decodeBytes(b[n:])
 	}
 
 	return nil
