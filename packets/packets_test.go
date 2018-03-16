@@ -3,6 +3,8 @@ package packets
 import (
 	"bytes"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPacketNames(t *testing.T) {
@@ -143,9 +145,59 @@ func TestPackUnpackControlPackets(t *testing.T) {
 		if err != nil {
 			t.Errorf("Read of packed %T returned error: %s", packet, err)
 		}
+		read, err = ReadPacketLimitSize(buf, 100000)
+		if err != nil {
+			t.Errorf("Read of packed limit size %T returned error: %s", packet, err)
+		}
 		if read.String() != packet.String() {
 			t.Errorf("Read of packed %T did not equal original.\nExpected: %v\n     Got: %v", packet, packet, read)
 		}
+	}
+}
+
+func TestType(t *testing.T) {
+	packets := []ControlPacket{
+		NewControlPacket(Connect).(*ConnectPacket),
+		NewControlPacket(Connack).(*ConnackPacket),
+		NewControlPacket(Publish).(*PublishPacket),
+		NewControlPacket(Puback).(*PubackPacket),
+		NewControlPacket(Pubrec).(*PubrecPacket),
+		NewControlPacket(Pubrel).(*PubrelPacket),
+		NewControlPacket(Pubcomp).(*PubcompPacket),
+		NewControlPacket(Subscribe).(*SubscribePacket),
+		NewControlPacket(Suback).(*SubackPacket),
+		NewControlPacket(Unsubscribe).(*UnsubscribePacket),
+		NewControlPacket(Unsuback).(*UnsubackPacket),
+		NewControlPacket(Pingreq).(*PingreqPacket),
+		NewControlPacket(Pingresp).(*PingrespPacket),
+		NewControlPacket(Disconnect).(*DisconnectPacket),
+	}
+	for i, packet := range packets {
+		assert.Equal(t, byte(i+1), packet.Type())
+	}
+}
+
+func TestReset(t *testing.T) {
+	packets := []ControlPacket{
+		NewControlPacket(Connect).(*ConnectPacket),
+		NewControlPacket(Connack).(*ConnackPacket),
+		NewControlPacket(Publish).(*PublishPacket),
+		NewControlPacket(Puback).(*PubackPacket),
+		NewControlPacket(Pubrec).(*PubrecPacket),
+		NewControlPacket(Pubrel).(*PubrelPacket),
+		NewControlPacket(Pubcomp).(*PubcompPacket),
+		NewControlPacket(Subscribe).(*SubscribePacket),
+		NewControlPacket(Suback).(*SubackPacket),
+		NewControlPacket(Unsubscribe).(*UnsubscribePacket),
+		NewControlPacket(Unsuback).(*UnsubackPacket),
+		NewControlPacket(Pingreq).(*PingreqPacket),
+		NewControlPacket(Pingresp).(*PingrespPacket),
+		NewControlPacket(Disconnect).(*DisconnectPacket),
+	}
+	for _, packet := range packets {
+		packet.Reset()
+		packet.Details()
+		packet.Close()
 	}
 }
 

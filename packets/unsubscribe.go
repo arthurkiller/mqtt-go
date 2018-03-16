@@ -38,7 +38,7 @@ func (u *UnsubscribePacket) Type() byte {
 //Reset will initialize the fields in control packet
 func (u *UnsubscribePacket) Reset() {
 	u.FixedHeader.Dup = false
-	u.FixedHeader.QoS = byte(0)
+	u.FixedHeader.QoS = byte(1)
 	u.FixedHeader.RemainingLength = 0
 	u.FixedHeader.Retain = false
 	u.MessageID = 0

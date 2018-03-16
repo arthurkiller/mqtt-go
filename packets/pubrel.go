@@ -37,7 +37,7 @@ func (pr *PubrelPacket) Type() byte {
 //Reset will initialize the fields in control packet
 func (pr *PubrelPacket) Reset() {
 	pr.FixedHeader.Dup = false
-	pr.FixedHeader.QoS = byte(0)
+	pr.FixedHeader.QoS = byte(1)
 	pr.FixedHeader.RemainingLength = 0
 	pr.FixedHeader.Retain = false
 	pr.MessageID = 0

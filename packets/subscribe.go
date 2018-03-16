@@ -39,7 +39,7 @@ func (s *SubscribePacket) Type() byte {
 //Reset will initialize the fields in control packet
 func (s *SubscribePacket) Reset() {
 	s.FixedHeader.Dup = false
-	s.FixedHeader.QoS = byte(0)
+	s.FixedHeader.QoS = byte(1)
 	s.FixedHeader.RemainingLength = 0
 	s.FixedHeader.Retain = false
 	s.MessageID = 0
