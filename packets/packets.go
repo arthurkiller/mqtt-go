@@ -168,40 +168,6 @@ func ReadPacket(r io.Reader) (cp ControlPacket, err error) {
 	return cp, err
 }
 
-//ReadPacketLimitSize limit MQTT packet size. Other is same to ReadPacket.
-func ReadPacketLimitSize(r io.Reader, maxSize int) (cp ControlPacket, err error) {
-	var fh FixedHeader
-	b := _leakyBuf.Get()
-
-	n, err := io.ReadFull(r, b[0:0])
-	if err != nil {
-		return nil, err
-	}
-
-	offset := fh.unpack(r, b)
-	n, err = io.ReadFull(r, b[offset:offset+fh.RemainingLength])
-	if err != nil {
-		return nil, err
-	}
-	if fh.RemainingLength != n {
-		return nil, errors.New("Failed to read expected data")
-	}
-
-	// FIXME max size only caculate varable header + payload size.
-	if fh.RemainingLength > maxSize {
-		return nil, fmt.Errorf("ReminingLength(%d) > maxSize(%d)", fh.RemainingLength, maxSize)
-	}
-
-	cp = NewControlPacketWithHeader(&fh)
-	if cp == nil {
-		return nil, errors.New("Bad data from client")
-	}
-
-	err = cp.Unpack(b[offset : offset+fh.RemainingLength])
-	_leakyBuf.Put(b)
-	return cp, err
-}
-
 //NewControlPacket is used to create a new ControlPacket of the type specified
 //by packetType, this is usually done by reference to the packet type constants
 //defined in packets.go. The newly created ControlPacket is empty and a pointer

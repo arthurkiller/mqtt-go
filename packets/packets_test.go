@@ -145,10 +145,6 @@ func TestPackUnpackControlPackets(t *testing.T) {
 		if err != nil {
 			t.Errorf("Read of packed %T returned error: %s", packet, err)
 		}
-		read, err = ReadPacketLimitSize(buf, 100000)
-		if err != nil {
-			t.Errorf("Read of packed limit size %T returned error: %s", packet, err)
-		}
 		if read.String() != packet.String() {
 			t.Errorf("Read of packed %T did not equal original.\nExpected: %v\n     Got: %v", packet, packet, read)
 		}
