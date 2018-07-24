@@ -12,12 +12,12 @@ const (
 	// according to mqtt 3.1, remain leanth should be lower than 256M
 	// mostly MQTT packet should always lower than 500B
 	// 1k*10k: in this condition, leakybuf will capture 10m RAM or less
-	LeakyBufSize = 102400
-	// MaxNBuf give out leaky buffer size
-	MaxNBuf = 1024
+	LeakyBufSize = 10240
 )
 
-var _leakyBuf = NewLeakyBuf(MaxNBuf, LeakyBufSize)
+func init() {
+	NewBufferPool(LeakyBufSize)
+}
 
 // ErrInternal will occored on internal error, which should not happen.
 var ErrInternal = errors.New("Internal error occurred")
@@ -140,7 +140,7 @@ var ConnErrors = map[byte]error{
 // 	 --- fh --- | vh |  datagram  |
 func ReadPacket(r io.Reader) (cp ControlPacket, err error) {
 	var fh FixedHeader
-	b := _leakyBuf.Get()
+	b := Getbuf()
 
 	n, err := io.ReadFull(r, b[0:1])
 	if err != nil {
@@ -164,7 +164,7 @@ func ReadPacket(r io.Reader) (cp ControlPacket, err error) {
 	}
 
 	err = cp.Unpack(b[offset : offset+fh.RemainingLength])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return cp, err
 }
 

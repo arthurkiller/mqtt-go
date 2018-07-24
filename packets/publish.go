@@ -60,7 +60,7 @@ func (p *PublishPacket) String() string {
 
 func (p *PublishPacket) Write(w io.Writer) (err error) {
 	var n, m int
-	b := _leakyBuf.Get()
+	b := Getbuf()
 
 	n = 5
 	encodeString(p.TopicName, b[n:])
@@ -74,7 +74,7 @@ func (p *PublishPacket) Write(w io.Writer) (err error) {
 	m = p.FixedHeader.pack(b[:5])
 
 	_, err = w.Write(b[5-m : n])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	if err != nil {
 		return
 	}

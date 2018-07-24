@@ -52,10 +52,10 @@ func (d *DisconnectPacket) String() string {
 }
 
 func (d *DisconnectPacket) Write(w io.Writer) error {
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	d.FixedHeader.pack(b[:5])
 	_, err := w.Write(b[3:5])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return err
 }
 

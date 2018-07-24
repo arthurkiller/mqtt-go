@@ -58,13 +58,13 @@ func (ca *ConnackPacket) Type() byte {
 // | ---   ReturnCode   --- |
 // Connack is a specify length packet. So we only use one bytes
 func (ca *ConnackPacket) Write(w io.Writer) (err error) {
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	ca.FixedHeader.RemainingLength = 2
 	ca.FixedHeader.pack(b[:5])
 
 	b[5], b[6] = boolToByte(ca.SessionPresent), ca.ReturnCode
 	_, err = w.Write(b[3:7])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return
 }
 

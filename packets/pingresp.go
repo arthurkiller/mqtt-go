@@ -53,10 +53,10 @@ func (pr *PingrespPacket) String() string {
 }
 
 func (pr *PingrespPacket) Write(w io.Writer) error {
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	pr.FixedHeader.pack(b[:5])
 	_, err := w.Write(b[3:5])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return err
 }
 

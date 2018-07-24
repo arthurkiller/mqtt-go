@@ -54,12 +54,12 @@ func (pc *PubcompPacket) String() string {
 }
 
 func (pc *PubcompPacket) Write(w io.Writer) (err error) {
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	pc.FixedHeader.RemainingLength = 2
 	pc.FixedHeader.pack(b[:5])
 	encodeUint16(pc.MessageID, b[5:])
 	_, err = w.Write(b[3:7])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return err
 }
 

@@ -86,7 +86,7 @@ func (c *ConnectPacket) Type() byte {
 
 func (c *ConnectPacket) Write(w io.Writer) (err error) {
 	var n = 5
-	b := _leakyBuf.Get()
+	b := Getbuf()
 
 	encodeString(c.ProtocolName, b[n:])
 	n += len(c.ProtocolName) + 2 // 8byte
@@ -122,7 +122,7 @@ func (c *ConnectPacket) Write(w io.Writer) (err error) {
 
 	m := c.FixedHeader.pack(b[:5])
 	_, err = w.Write(b[5-m : n])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return err
 }
 

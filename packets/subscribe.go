@@ -59,7 +59,7 @@ func (s *SubscribePacket) String() string {
 
 func (s *SubscribePacket) Write(w io.Writer) (err error) {
 	var n, m int
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	encodeUint16(s.MessageID, b[5:])
 	n = 7
 
@@ -73,7 +73,7 @@ func (s *SubscribePacket) Write(w io.Writer) (err error) {
 
 	m = s.FixedHeader.pack(b[:5])
 	_, err = w.Write(b[5-m : n])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return err
 }
 

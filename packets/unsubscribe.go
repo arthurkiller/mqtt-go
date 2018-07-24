@@ -57,7 +57,7 @@ func (u *UnsubscribePacket) String() string {
 
 func (u *UnsubscribePacket) Write(w io.Writer) (err error) {
 	var n, m int
-	b := _leakyBuf.Get()
+	b := Getbuf()
 	encodeUint16(u.MessageID, b[5:])
 	n = 7
 	for _, topic := range u.Topics {
@@ -68,7 +68,7 @@ func (u *UnsubscribePacket) Write(w io.Writer) (err error) {
 
 	m = u.FixedHeader.pack(b[:5])
 	_, err = w.Write(b[5-m : n])
-	_leakyBuf.Put(b)
+	Putbuf(b)
 	return
 }
 
