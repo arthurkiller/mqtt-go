@@ -13,7 +13,7 @@ func TestSubackPacketWrite(t *testing.T) {
 	cp.ReturnCodes = []byte{0, 1, 2, 128}
 
 	subackPacketBytes := bytes.Buffer{}
-	cp.Write(&subackPacketBytes)
+	assert.NoError(t, cp.Write(&subackPacketBytes))
 	assert.Equal(t, []byte{144, 6, 4, 210, 0, 1, 2, 128}, subackPacketBytes.Bytes(), "Suback packet write not matched")
 
 	cp.Close()

@@ -13,7 +13,7 @@ func TestUnsubscribePacketWrite(t *testing.T) {
 	cp.Topics = []string{"hello", "world", "/this/is/mqtt"}
 
 	unsubscribePacketBytes := bytes.Buffer{}
-	cp.Write(&unsubscribePacketBytes)
+	assert.NoError(t, cp.Write(&unsubscribePacketBytes))
 	assert.Equal(t, []byte{162, 31, 4, 210, 0, 5, 104, 101, 108, 108, 111, 0, 5, 119, 111,
 		114, 108, 100, 0, 13, 47, 116, 104, 105, 115, 47, 105, 115, 47, 109, 113, 116, 116},
 		unsubscribePacketBytes.Bytes(), "Ununsubscribe packet write not matched")

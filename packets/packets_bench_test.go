@@ -156,6 +156,8 @@ func getRandPack() io.Reader {
 	f := bytes.Buffer{}
 	cp := cps[rand.Int()%len(cps)]
 	f.Reset()
-	cp.Write(&f)
+	if err := cp.Write(&f); err != nil {
+		panic(err)
+	}
 	return &f
 }

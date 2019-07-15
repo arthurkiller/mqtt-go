@@ -198,11 +198,11 @@ func TestReset(t *testing.T) {
 }
 
 func TestEncoding(t *testing.T) {
-	if res := decodeUint16([]byte{0x56, 0x78}); res != 22136 {
+	if res, _ := decodeUint16([]byte{0x56, 0x78}); res != 22136 {
 		t.Errorf("decodeUint16([0x5678]) did not return 22136 but %d", res)
 	}
 	res := make([]byte, 64)
-	if encodeUint16(22136, res); !bytes.Equal(res[:2], []byte{0x56, 0x78}) {
+	if err := encodeUint16(22136, res); err != nil || !bytes.Equal(res[:2], []byte{0x56, 0x78}) {
 		t.Errorf("encodeUint16(22136) did not return [0x5678] but [0x%X]", res)
 	}
 
@@ -212,11 +212,11 @@ func TestEncoding(t *testing.T) {
 		"A\U0002A6D4": {0x00, 0x05, 'A', 0xF0, 0xAA, 0x9B, 0x94},
 	}
 	for str, encoded := range strings {
-		if res, _ := decodeString(encoded); res != str {
-			t.Errorf(`decodeString(%v) did not return "%s", but "%s"`, encoded, str, res)
+		if res, _, err := decodeString(encoded); res != str || err != nil {
+			t.Errorf(`decodeString(%v) did not return "%s", but "%s", err "%v`, encoded, str, res, err)
 		}
 		res := make([]byte, 64)
-		if encodeString(str, res); !bytes.Equal(res[:len(str)+2], encoded) {
+		if err := encodeString(str, res); err != nil || !bytes.Equal(res[:len(str)+2], encoded) {
 			t.Errorf(`encodeString("%s") did not return [0x%X], but [0x%X]`, str, encoded, res)
 		}
 	}

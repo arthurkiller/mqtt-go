@@ -12,11 +12,12 @@ var _unsubackPacketPool = sync.Pool{
 	},
 }
 
-//UnsubackPacket is an internal representation of the fields of the
-//Unsuback MQTT packet
+// UnsubackPacket is an internal representation of the fields of the
+// Unsuback MQTT packet
 type UnsubackPacket struct {
 	*FixedHeader
 	MessageID uint16
+	TraceID   string
 }
 
 // NewUnsubackPacket return the ping request packet
@@ -24,12 +25,18 @@ func NewUnsubackPacket() *UnsubackPacket {
 	return _unsubackPacketPool.Get().(*UnsubackPacket)
 }
 
-//Type return the packet type
+// SetTraceID will set traceid for tracing
+func (ua *UnsubackPacket) SetTraceID(id string) { ua.TraceID = id }
+
+// Verify packet availability
+func (ua *UnsubackPacket) Verify() bool { return true }
+
+// Type return the packet type
 func (ua *UnsubackPacket) Type() byte {
 	return ua.FixedHeader.MessageType
 }
 
-//Reset will initialize the fields in control packet
+// Reset will initialize the fields in control packet
 func (ua *UnsubackPacket) Reset() {
 	ua.FixedHeader.Dup = false
 	ua.FixedHeader.QoS = byte(0)
@@ -38,40 +45,47 @@ func (ua *UnsubackPacket) Reset() {
 	ua.MessageID = 0
 }
 
-//SetFixedHeader will set fh for our header
+// SetFixedHeader will set fh for our header
 func (ua *UnsubackPacket) SetFixedHeader(fh *FixedHeader) {
 	ua.FixedHeader = fh
 }
 
-//Close reset the packet field put the control packet back to pool
+// Close reset the packet field put the control packet back to pool
 func (ua *UnsubackPacket) Close() {
 	ua.Reset()
 	_unsubackPacketPool.Put(ua)
 }
 
+// String export the packet of unsuback information
 func (ua *UnsubackPacket) String() string {
-	return fmt.Sprintf("%s MessageID: %d", ua.FixedHeader, ua.MessageID)
+	return fmt.Sprintf("%s MessageID: %d traceID: %s", ua.FixedHeader, ua.MessageID, ua.TraceID)
 }
 
+// Write will write the packets mostly into a net.Conn
 func (ua *UnsubackPacket) Write(w io.Writer) (err error) {
 	b := Getbuf()
+	defer Putbuf(b)
 	ua.FixedHeader.RemainingLength = 2
-	ua.FixedHeader.pack(b[:5])
-	encodeUint16(ua.MessageID, b[5:])
-	_, err = w.Write(b[3:7])
-	Putbuf(b)
+	ua.FixedHeader.pack(b.b[:5])
+	if err = encodeUint16(ua.MessageID, b.b[5:]); err != nil {
+		return err
+	}
+	_, err = w.Write(b.b[3:7])
 	return
 }
 
-//Unpack decodes the details of a ControlPacket after the fixed
-//header has been read
-func (ua *UnsubackPacket) Unpack(b []byte) error {
-	ua.MessageID = decodeUint16(b)
-	return nil
+// Unpack decodes the details of a ControlPacket after the fixed
+// header has been read
+func (ua *UnsubackPacket) Unpack(b []byte) (err error) {
+	if len(b) < 2 {
+		return io.ErrShortBuffer
+	}
+	ua.MessageID, err = decodeUint16(b)
+	return err
 }
 
-//Details returns a Details struct containing the QoS and
-//MessageID of this ControlPacket
+// Details returns a Details struct containing the QoS and
+// MessageID of this ControlPacket
 func (ua *UnsubackPacket) Details() Details {
 	return Details{QoS: 0, MessageID: ua.MessageID}
 }
