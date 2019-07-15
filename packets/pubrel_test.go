@@ -12,7 +12,7 @@ func TestPubrelPacketWrite(t *testing.T) {
 	cp.MessageID = 4321
 
 	pubrelPacketBytes := bytes.Buffer{}
-	cp.Write(&pubrelPacketBytes)
+	assert.NoError(t, cp.Write(&pubrelPacketBytes))
 	assert.Equal(t, []byte{98, 2, 16, 225}, pubrelPacketBytes.Bytes(), "Pubrel packet write not matched")
 	cp.Close()
 }

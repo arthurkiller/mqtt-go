@@ -15,7 +15,7 @@ func TestPublishPacketWrite(t *testing.T) {
 	cp.Payload = []byte("this message is send via mqtt protocol 3.1")
 
 	publishPacketBytes := bytes.Buffer{}
-	cp.Write(&publishPacketBytes)
+	assert.NoError(t, cp.Write(&publishPacketBytes))
 	assert.Equal(t, []byte{50, 75, 0, 29, 47, 119, 101, 108, 99, 111, 109, 101, 47, 116, 111, 47, 117, 115,
 		101, 47, 109, 113, 116, 116, 47, 112, 114, 111, 116, 111, 99, 111, 108, 16, 225, 116, 104, 105, 115,
 		32, 109, 101, 115, 115, 97, 103, 101, 32, 105, 115, 32, 115, 101, 110, 100, 32, 118, 105, 97, 32, 109,
@@ -30,7 +30,7 @@ func TestPublishPacketWrite(t *testing.T) {
 	cp.Payload = []byte("this message is send via mqtt protocol 3.1")
 
 	publishPacketBytes.Reset()
-	cp.Write(&publishPacketBytes)
+	assert.NoError(t, cp.Write(&publishPacketBytes))
 	assert.Equal(t, []byte{48, 73, 0, 29, 47, 119, 101, 108, 99, 111, 109, 101, 47, 116, 111, 47, 117, 115,
 		101, 47, 109, 113, 116, 116, 47, 112, 114, 111, 116, 111, 99, 111, 108, 116, 104, 105, 115, 32, 109,
 		101, 115, 115, 97, 103, 101, 32, 105, 115, 32, 115, 101, 110, 100, 32, 118, 105, 97, 32, 109, 113,

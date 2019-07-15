@@ -28,7 +28,7 @@ func TestConectPacketWrite(t *testing.T) {
 	cp.Password = []byte("mqtt")
 
 	connectPacketBytes := bytes.Buffer{}
-	cp.Write(&connectPacketBytes)
+	assert.NoError(t, cp.Write(&connectPacketBytes))
 	assert.Equal(t, []byte{16, 47, 0, 4, 77, 81, 84, 84, 4, 246, 1, 44, 0, 4, 116, 101, 115, 116, 0, 5, 47,
 		116, 101, 115, 116, 0, 11, 104, 101, 108, 108, 111, 44, 119, 111, 114, 108, 100, 0, 3, 116, 111, 109,
 		0, 4, 109, 113, 116, 116}, connectPacketBytes.Bytes(), "Connect packet write not matched")

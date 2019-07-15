@@ -13,7 +13,7 @@ func TestConnackPacketWrite(t *testing.T) {
 	cp.ReturnCode = 1
 
 	connackPacketBytes := bytes.Buffer{}
-	cp.Write(&connackPacketBytes)
+	assert.NoError(t, cp.Write(&connackPacketBytes))
 	assert.Equal(t, []byte{32, 2, 0, 1}, connackPacketBytes.Bytes(), "Connack packet write not matched")
 	cp.Close()
 }

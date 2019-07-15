@@ -12,7 +12,7 @@ func TestUnsubackPacketWrite(t *testing.T) {
 	cp.MessageID = 1234
 
 	unsubackPacketBytes := bytes.Buffer{}
-	cp.Write(&unsubackPacketBytes)
+	assert.NoError(t, cp.Write(&unsubackPacketBytes))
 	assert.Equal(t, []byte{176, 2, 4, 210}, unsubackPacketBytes.Bytes(), "Ununsuback packet write not matched")
 
 	cp.Close()

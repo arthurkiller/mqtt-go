@@ -12,7 +12,7 @@ func TestPubackPacketWrite(t *testing.T) {
 	cp.MessageID = 4321
 
 	pubackPacketBytes := bytes.Buffer{}
-	cp.Write(&pubackPacketBytes)
+	assert.NoError(t, cp.Write(&pubackPacketBytes))
 	assert.Equal(t, []byte{64, 2, 16, 225}, pubackPacketBytes.Bytes(), "Puback packet write not matched")
 	cp.Close()
 }

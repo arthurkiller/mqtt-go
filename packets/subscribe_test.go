@@ -14,7 +14,7 @@ func TestSubscribePacketWrite(t *testing.T) {
 	cp.QoSs = []byte{0, 1, 2}
 
 	subscribePacketBytes := bytes.Buffer{}
-	cp.Write(&subscribePacketBytes)
+	assert.NoError(t, cp.Write(&subscribePacketBytes))
 	assert.Equal(t, []byte{130, 34, 4, 210, 0, 5, 104, 101, 108, 108, 111, 0, 0, 5, 119, 111,
 		114, 108, 100, 1, 0, 13, 47, 116, 104, 105, 115, 47, 105, 115, 47, 109, 113, 116, 116, 2},
 		subscribePacketBytes.Bytes(), "Subscribe packet write not matched")
