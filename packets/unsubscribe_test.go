@@ -13,7 +13,9 @@ func TestUnsubscribePacketWrite(t *testing.T) {
 	cp.Topics = []string{"hello", "world", "/this/is/mqtt"}
 
 	unsubscribePacketBytes := bytes.Buffer{}
-	assert.NoError(t, cp.Write(&unsubscribePacketBytes))
+	ll, err := cp.Write(&unsubscribePacketBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, ll, unsubscribePacketBytes.Len())
 	assert.Equal(t, []byte{162, 31, 4, 210, 0, 5, 104, 101, 108, 108, 111, 0, 5, 119, 111,
 		114, 108, 100, 0, 13, 47, 116, 104, 105, 115, 47, 105, 115, 47, 109, 113, 116, 116},
 		unsubscribePacketBytes.Bytes(), "Ununsubscribe packet write not matched")
@@ -26,12 +28,13 @@ func TestUnsubscribePacket(t *testing.T) {
 		104, 101, 108, 108, 111, 0, 5, 119, 111, 114, 108, 100, 0, 13, 47,
 		116, 104, 105, 115, 47, 105, 115, 47, 109, 113, 116, 116})
 
-	packet, err := ReadPacket(unsubscribePacketBytes)
+	packet, ll, err := ReadPacket(unsubscribePacketBytes)
 	if err != nil {
 		t.Fatalf("Error reading packet: %s", err.Error())
 	}
 	cp := packet.(*UnsubscribePacket)
 
+	assert.Equal(t, unsubscribePacketBytes.Cap(), ll)
 	assert.Equal(t, uint16(1234), cp.MessageID, "Ununsubscribe messageID not matched")
 	assert.Equal(t, []string{"hello", "world", "/this/is/mqtt"}, cp.Topics, "Subscribe topics not matched")
 	packet.Close()

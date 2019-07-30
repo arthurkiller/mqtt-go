@@ -62,16 +62,15 @@ func (ua *UnsubackPacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (ua *UnsubackPacket) Write(w io.Writer) (err error) {
+func (ua *UnsubackPacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	ua.FixedHeader.RemainingLength = 2
 	ua.FixedHeader.pack(b.b[:5])
 	if err = encodeUint16(ua.MessageID, b.b[5:]); err != nil {
-		return err
+		return 0, err
 	}
-	_, err = w.Write(b.b[3:7])
-	return
+	return w.Write(b.b[3:7])
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

@@ -62,16 +62,15 @@ func (pc *PubcompPacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (pc *PubcompPacket) Write(w io.Writer) (err error) {
+func (pc *PubcompPacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	pc.FixedHeader.RemainingLength = 2
 	pc.FixedHeader.pack(b.b[:5])
 	if err = encodeUint16(pc.MessageID, b.b[5:]); err != nil {
-		return err
+		return 0, err
 	}
-	_, err = w.Write(b.b[3:7])
-	return err
+	return w.Write(b.b[3:7])
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

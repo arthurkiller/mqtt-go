@@ -64,31 +64,30 @@ func (u *UnsubscribePacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (u *UnsubscribePacket) Write(w io.Writer) (err error) {
+func (u *UnsubscribePacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	if err = encodeUint16(u.MessageID, b.b[5:]); err != nil {
-		return err
+		return 0, err
 	}
 
-	n := 0
 	ub := make([]byte, n)
 	for _, topic := range u.Topics {
 		ub = append(ub, make([]byte, len(topic)+2)...)
 		if err = encodeString(topic, ub[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(topic) + 2
 	}
 	u.FixedHeader.RemainingLength = n + 2
 
 	m := u.FixedHeader.pack(b.b[:5])
-	if _, err = w.Write(b.b[5-m : 7]); err != nil {
-		return err
+	if m, err = w.Write(b.b[5-m : 7]); err != nil {
+		return m, err
 	}
 
-	_, err = w.Write(ub[:n])
-	return
+	n, err = w.Write(ub[:n])
+	return n + m, err
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

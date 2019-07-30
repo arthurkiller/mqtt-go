@@ -64,14 +64,13 @@ func (ca *ConnackPacket) Type() byte {
 // | --- SessionPresent --- |
 // | ---   ReturnCode   --- |
 // Connack is a specify length packet. So we only use one bytes
-func (ca *ConnackPacket) Write(w io.Writer) (err error) {
+func (ca *ConnackPacket) Write(w io.Writer) (length int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	ca.FixedHeader.RemainingLength = 2
 	ca.FixedHeader.pack(b.b[:5])
 	b.b[5], b.b[6] = boolToByte(ca.SessionPresent), ca.ReturnCode
-	_, err = w.Write(b.b[3:7])
-	return
+	return w.Write(b.b[3:7])
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

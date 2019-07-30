@@ -58,12 +58,11 @@ func (pr *PingrespPacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (pr *PingrespPacket) Write(w io.Writer) error {
+func (pr *PingrespPacket) Write(w io.Writer) (int, error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	pr.FixedHeader.pack(b.b[:5])
-	_, err := w.Write(b.b[3:5])
-	return err
+	return w.Write(b.b[3:5])
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

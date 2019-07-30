@@ -36,7 +36,7 @@ func BenchmarkReadPacket(b *testing.B) {
 		b.StopTimer()
 		f := getRandPack()
 		b.StartTimer()
-		cp, _ := ReadPacket(f)
+		cp, _, _ := ReadPacket(f)
 		cp.Close()
 	}
 }
@@ -156,7 +156,7 @@ func getRandPack() io.Reader {
 	f := bytes.Buffer{}
 	cp := cps[rand.Int()%len(cps)]
 	f.Reset()
-	if err := cp.Write(&f); err != nil {
+	if _, err := cp.Write(&f); err != nil {
 		panic(err)
 	}
 	return &f
