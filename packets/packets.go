@@ -32,7 +32,7 @@ var (
 // func UnmarshalPacket(ControlPacket) ([]byte, error)       { return nil, nil }
 
 // WritePacket write a packet to w
-func WritePacket(w io.Writer, p ControlPacket) error { return p.Write(w) }
+func WritePacket(w io.Writer, p ControlPacket) (int, error) { return p.Write(w) }
 
 // ControlPacket defines the interface for structs intended to hold
 // decoded MQTT packets, either from being read or before being
@@ -47,7 +47,7 @@ type ControlPacket interface {
 	// Type return the packet type
 	Type() byte
 	// Write the packet into Writer
-	Write(io.Writer) error
+	Write(io.Writer) (int, error)
 	// Unpack the given byte and fill in the control packet object fields
 	Unpack([]byte) error
 	// Reset will initialize the fields in control packet
@@ -156,86 +156,97 @@ var ConnErrors = map[byte]error{
 // always be nil, a nil ControlPacket indicating an error occurred.
 // [0][1] [2 3 4] ... [m+1] ... [n]
 // 	 --- fh --- | vh |  datagram  |
-func ReadPacket(r io.Reader) (cp ControlPacket, err error) {
+func ReadPacket(r io.Reader) (cp ControlPacket, length int, err error) {
 	var fh FixedHeader
 	b := Getbuf()
 	defer Putbuf(b)
 
 	n, err := io.ReadFull(r, b.b[0:1])
 	if err != nil {
-		return nil, err
+		return nil, n, err
 	}
 	if n != 1 {
-		return nil, io.ErrUnexpectedEOF
+		return nil, n, io.ErrUnexpectedEOF
 	}
-	if fh.unpack(r, b.b) <= 1 {
-		return nil, io.ErrUnexpectedEOF
+	if n = fh.unpack(r, b.b); n <= 1 {
+		return nil, n, io.ErrUnexpectedEOF
 	}
 
+	// 5 bit the packets header
+	length = n
+
 	if fh.RemainingLength > MaxRemainingLength {
-		return nil, ErrMQTTPacketLimitation
+		return nil, n, ErrMQTTPacketLimitation
 	}
 
 	rb := make([]byte, fh.RemainingLength)
 	n, err = io.ReadFull(r, rb)
+	// add remain  length
+	length += n
 	if err != nil {
-		return nil, err
+		return nil, length, err
 	}
+
 	if fh.RemainingLength != n {
-		return nil, errors.New("Failed to read expected data")
+		return nil, length, errors.New("Failed to read expected data")
 	}
 
 	cp = NewControlPacketWithHeader(&fh)
 	if cp == nil {
-		return nil, errors.New("Bad data from client")
+		return nil, length, errors.New("Bad data from client")
 	}
 
 	err = cp.Unpack(rb)
-	return cp, err
+	return cp, length, err
 }
 
 // ReadPacketLimitSize read a packet with a maximum size of s from net.Conn
-func ReadPacketLimitSize(r io.Reader, s int) (cp ControlPacket, err error) {
+func ReadPacketLimitSize(r io.Reader, s int) (cp ControlPacket, length int, err error) {
 	var fh FixedHeader
 	b := Getbuf()
 	defer Putbuf(b)
 
 	n, err := io.ReadFull(r, b.b[0:1])
 	if err != nil {
-		return nil, err
+		return nil, n, err
 	}
 	if n != 1 {
-		return nil, io.ErrUnexpectedEOF
+		return nil, n, io.ErrUnexpectedEOF
 	}
 
-	if fh.unpack(r, b.b) <= 1 {
-		return nil, io.ErrUnexpectedEOF
+	if n = fh.unpack(r, b.b); n <= 1 {
+		return nil, n, io.ErrUnexpectedEOF
 	}
+
+	// 5 bit the header packets
+	length = n
 
 	if fh.RemainingLength > MaxRemainingLength {
-		return nil, ErrMQTTPacketLimitation
+		return nil, length, ErrMQTTPacketLimitation
 	}
 
 	if fh.RemainingLength > s {
-		return nil, ErrReadPacketLimitation
+		return nil, length, ErrReadPacketLimitation
 	}
 
 	rb := make([]byte, fh.RemainingLength)
 	n, err = io.ReadFull(r, rb)
+	length += n
 	if err != nil {
-		return nil, err
+		return nil, length, err
 	}
+
 	if fh.RemainingLength != n {
-		return nil, errors.New("Failed to read expected data")
+		return nil, length, errors.New("Failed to read expected data")
 	}
 
 	cp = NewControlPacketWithHeader(&fh)
 	if cp == nil {
-		return nil, errors.New("Bad data from client")
+		return nil, length, errors.New("Bad data from client")
 	}
 
 	err = cp.Unpack(rb)
-	return cp, err
+	return cp, length, err
 }
 
 // NewControlPacket is used to create a new ControlPacket of the type specified

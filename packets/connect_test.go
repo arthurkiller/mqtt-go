@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConectPacketWrite(t *testing.T) {
+func TestConnectPacketWrite(t *testing.T) {
 	cp := NewConnectPacket()
 	cp.ProtocolName = "MQTT"
 	cp.ProtocolVersion = 4
@@ -28,7 +28,9 @@ func TestConectPacketWrite(t *testing.T) {
 	cp.Password = []byte("mqtt")
 
 	connectPacketBytes := bytes.Buffer{}
-	assert.NoError(t, cp.Write(&connectPacketBytes))
+	ll, err := cp.Write(&connectPacketBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, ll, connectPacketBytes.Len())
 	assert.Equal(t, []byte{16, 47, 0, 4, 77, 81, 84, 84, 4, 246, 1, 44, 0, 4, 116, 101, 115, 116, 0, 5, 47,
 		116, 101, 115, 116, 0, 11, 104, 101, 108, 108, 111, 44, 119, 111, 114, 108, 100, 0, 3, 116, 111, 109,
 		0, 4, 109, 113, 116, 116}, connectPacketBytes.Bytes(), "Connect packet write not matched")
@@ -39,7 +41,7 @@ func TestConnectPacket(t *testing.T) {
 	connectPacketBytes := bytes.NewBuffer([]byte{16, 52, 0, 4, 77, 81, 84, 84, 4, 204, 0, 0, 0, 0, 0, 4, 116,
 		101, 115, 116, 0, 12, 84, 101, 115, 116, 32, 80, 97, 121, 108, 111, 97, 100, 0, 8, 116, 101, 115, 116,
 		117, 115, 101, 114, 0, 8, 116, 101, 115, 116, 112, 97, 115, 115})
-	packet, err := ReadPacket(connectPacketBytes)
+	packet, ll, err := ReadPacket(connectPacketBytes)
 	if err != nil {
 		t.Fatalf("Error reading packet: %s", err.Error())
 	}
@@ -77,5 +79,7 @@ func TestConnectPacket(t *testing.T) {
 	if string(cp.WillMessage) != "Test Payload" {
 		t.Errorf("Connect Packet WillMessage is %s, should be %s", string(cp.WillMessage), "Test Payload")
 	}
+
+	assert.Equal(t, ll, connectPacketBytes.Cap())
 	packet.Close()
 }

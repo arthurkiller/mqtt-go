@@ -67,37 +67,37 @@ func (p *PublishPacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (p *PublishPacket) Write(w io.Writer) (err error) {
+func (p *PublishPacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 
-	n := len(p.TopicName) + 2
+	n = len(p.TopicName) + 2
 	pb := make([]byte, n+2)
 	if err = encodeString(p.TopicName, pb[:n]); err != nil {
-		return err
+		return 0, err
 	}
 
 	if p.QoS > 0 {
 		if err = encodeUint16(p.MessageID, pb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += 2
 	}
 	p.FixedHeader.RemainingLength = n + len(p.Payload)
 	m := p.FixedHeader.pack(b.b[:5])
 
-	if _, err = w.Write(b.b[5-m : 5]); err != nil {
-		return err
+	if m, err = w.Write(b.b[5-m : 5]); err != nil {
+		return m, err
 	}
 
-	if _, err = w.Write(pb[:n]); err != nil {
-		return err
+	if n, err = w.Write(pb[:n]); err != nil {
+		return n + m, err
 	}
 
 	// TODO FIXME XXX should be bufferd?
 	// should this be in one Write?
-	_, err = w.Write(p.Payload)
-	return
+	z, err := w.Write(p.Payload)
+	return n + m + z, err
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

@@ -138,10 +138,10 @@ func TestPackUnpackControlPackets(t *testing.T) {
 	buf := new(bytes.Buffer)
 	for _, packet := range packets {
 		buf.Reset()
-		if err := packet.Write(buf); err != nil {
+		if _, err := packet.Write(buf); err != nil {
 			t.Errorf("Write of %T returned error: %s", packet, err)
 		}
-		read, err := ReadPacket(buf)
+		read, _, err := ReadPacket(buf)
 		if err != nil {
 			t.Errorf("Read of packed %T returned error: %s", packet, err)
 		}

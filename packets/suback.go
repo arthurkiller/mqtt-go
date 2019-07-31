@@ -63,21 +63,21 @@ func (sa *SubackPacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (sa *SubackPacket) Write(w io.Writer) (err error) {
+func (sa *SubackPacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	if err = encodeUint16(sa.MessageID, b.b[5:]); err != nil {
-		return err
+		return 0, err
 	}
 	sa.FixedHeader.RemainingLength = 2 + len(sa.ReturnCodes)
 
 	m := sa.FixedHeader.pack(b.b[:5])
-	if _, err = w.Write(b.b[5-m : 7]); err != nil {
-		return err
+	if m, err = w.Write(b.b[5-m : 7]); err != nil {
+		return m, err
 	}
 
-	_, err = w.Write(sa.ReturnCodes)
-	return err
+	n, err = w.Write(sa.ReturnCodes)
+	return n + m, err
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

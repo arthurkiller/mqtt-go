@@ -92,12 +92,12 @@ func (c *ConnectPacket) Type() byte {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (c *ConnectPacket) Write(w io.Writer) (err error) {
+func (c *ConnectPacket) Write(w io.Writer) (n int, err error) {
 	cb := make([]byte, len(c.ProtocolName)+len(c.ClientIdentifier)+len(c.WillTopic)+len(c.WillMessage)+len(c.Username)+len(c.Password)+16)
 	if err = encodeString(c.ProtocolName, cb); err != nil {
-		return err
+		return 0, err
 	}
-	n := len(c.ProtocolName) + 2 // 8byte
+	n = len(c.ProtocolName) + 2 // 8byte
 
 	cb[n] = c.ProtocolVersion
 	n++
@@ -107,34 +107,34 @@ func (c *ConnectPacket) Write(w io.Writer) (err error) {
 	n++
 
 	if err = encodeUint16(c.Keepalive, cb[n:]); err != nil {
-		return err
+		return 0, err
 	}
 	n += 2 // 12byte
 
 	if err = encodeString(c.ClientIdentifier, cb[n:]); err != nil {
-		return err
+		return 0, err
 	}
 	n += len(c.ClientIdentifier) + 2
 
 	if c.WillFlag {
 		if err = encodeString(c.WillTopic, cb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(c.WillTopic) + 2
 		if err = encodeBytes(c.WillMessage, cb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(c.WillMessage) + 2
 	}
 	if c.UsernameFlag {
 		if err = encodeString(c.Username, cb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(c.Username) + 2
 	}
 	if c.PasswordFlag {
 		if err = encodeBytes(c.Password, cb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(c.Password) + 2
 	}
@@ -143,12 +143,12 @@ func (c *ConnectPacket) Write(w io.Writer) (err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	m := c.FixedHeader.pack(b.b[:5])
-	if _, err = w.Write(b.b[5-m : 5]); err != nil {
-		return err
+	if m, err = w.Write(b.b[5-m : 5]); err != nil {
+		return m, err
 	}
 
-	_, err = w.Write(cb[:n])
-	return err
+	n, err = w.Write(cb[:n])
+	return n + m, err
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed

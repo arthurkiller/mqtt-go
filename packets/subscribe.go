@@ -66,19 +66,18 @@ func (s *SubscribePacket) String() string {
 }
 
 // Write will write the packets mostly into a net.Conn
-func (s *SubscribePacket) Write(w io.Writer) (err error) {
+func (s *SubscribePacket) Write(w io.Writer) (n int, err error) {
 	b := Getbuf()
 	defer Putbuf(b)
 	if err = encodeUint16(s.MessageID, b.b[5:]); err != nil {
-		return err
+		return 0, err
 	}
 
-	n := 0
 	sb := make([]byte, n)
 	for i, topic := range s.Topics {
 		sb = append(sb, make([]byte, len(topic)+3)...)
 		if err = encodeString(topic, sb[n:]); err != nil {
-			return err
+			return 0, err
 		}
 		n += len(topic) + 2
 		sb[n] = s.QoSs[i]
@@ -87,12 +86,12 @@ func (s *SubscribePacket) Write(w io.Writer) (err error) {
 	s.FixedHeader.RemainingLength = n + 2
 
 	m := s.FixedHeader.pack(b.b[:5])
-	if _, err = w.Write(b.b[5-m : 7]); err != nil {
-		return err
+	if m, err = w.Write(b.b[5-m : 7]); err != nil {
+		return m, err
 	}
 
-	_, err = w.Write(sb[:n])
-	return err
+	n, err = w.Write(sb[:n])
+	return n + m, err
 }
 
 // Unpack decodes the details of a ControlPacket after the fixed
